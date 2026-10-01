@@ -41,7 +41,7 @@ def save_to_rag_data(columns, values):
             cursor.execute(query, values)
             conn.commit()
 
-def save_to_embedding_data(columns, values):
+def save_to_embedding_data(values):
     """
     Save data to the rag_embedding table in the database.
 
@@ -51,12 +51,8 @@ def save_to_embedding_data(columns, values):
     """
     with get_db() as conn:
         with conn.cursor() as cursor:
-            # Create a string of placeholders for the values
-            placeholders = ', '.join(['%s'] * len(values))
-            # Create a string of column names
-            columns_str = ', '.join(columns)
             # Create the SQL query
-            query = f"INSERT INTO rag_chunkdata (id,chunk_content,chunk_index,metadata,vector,fts) VALUES (%s, %s, %s, %s, %s, %s)"
+            query = f"INSERT INTO rag_chunkdata (id,chunk_content,chunk_index,metadata,vector,fts) VALUES (%s, %s, %s, %s, %s, to_tsvector('simple',%s))"
             
             # Execute the query with the provided values
             cursor.execute(query, values)
