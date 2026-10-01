@@ -1,0 +1,132 @@
+# ============================================================================
+# .gitignore — denso workspace (root)
+# Mục tiêu: không bao giờ để lộ secrets / dữ liệu nhạy cảm,
+#           không track file nặng & artifact sinh ra tự động,
+#           không track folder do các công cụ AI tạo ra.
+# ============================================================================
+
+# ---------------------------------------------------------------------------
+# 1) SECRETS & ENVIRONMENT — tuyệt đối không commit
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+
+# Các biến thể secret hay gặp
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+secrets.json
+credentials.json
+*.keystore
+
+# ---------------------------------------------------------------------------
+# 2) PYTHON — bytecode, cache, packaging
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ---------------------------------------------------------------------------
+# 3) VIRTUAL ENVIRONMENTS — rất nặng, tuyệt đối không track
+# ---------------------------------------------------------------------------
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ---------------------------------------------------------------------------
+# 4) DJANGO — DB local, media, static, log, dump
+# ---------------------------------------------------------------------------
+*.sqlite3
+*.sqlite3-journal
+*.db
+/media/
+/static/
+/staticfiles/
+*.log
+*.log.*
+*.dump
+*.sql.gz
+*.backup
+*.bak
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+celerybeat.pid.backup
+
+# Django test / coverage
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.pytest_cache/
+
+# Type checkers / linters cache
+.mypy_cache/
+.dmypy.json
+.ruff_cache/
+.pytype/
+
+# ---------------------------------------------------------------------------
+# 5) IDE / EDITOR
+# ---------------------------------------------------------------------------
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+.sublime-workspace
+*.sublime-project
+
+# ---------------------------------------------------------------------------
+# 6) FOLDER / FILE DO AI & CÔNG CỤ AGENT TẠO RA
+# ---------------------------------------------------------------------------
+.freebuff/
+.claude/
+.claude.json
+.cursor/
+.cursorignore
+.aider*
+.continue/
+.copilot*
+.codeium/
+.windsurf/
+.gemini/
+.tabnine*
+.supermaven/
+.aider.chat.history.md
+CLAUDE.md
+GEMINI.md
+.cursorrules
+
+# OS
+.DS_Store
+Thumbs.db
