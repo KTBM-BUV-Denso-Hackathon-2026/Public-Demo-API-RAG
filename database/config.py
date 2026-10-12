@@ -68,11 +68,55 @@ def close_pool() -> None:
             _pool = None
 
 
+def _borrow_live_connection(pool, attempts: int = 2):
+    """Mượn một kết nối **còn sống** từ pool, loại bỏ kết nối đã chết.
+
+    Vì sao cần?
+    ``DATABASE_URL`` đang trỏ tới connection **POOLER** của cloud Postgres
+    (Neon/Supabase — hostname có chữ ``-pooler``). Pooler chủ động đóng kết nối
+    rảnh sau một thời gian, nhưng kết nối đó vẫn nằm trong pool của ta. Lần
+    mượn kế tiếp sẽ dùng lại đúng socket đã chết và mọi query sẽ nổ:
+
+        psycopg2.OperationalError: SSL SYSCALL error:
+        Software caused connection abort (0x00002745/10053)
+
+    Worker chạy nền nhiều phút giữa hai lần nạp tài liệu, nên dễ dính lỗi này
+    hơn hẳn API. psycopg2 (khác với ``psycopg_pool`` của psycopg3, và khác
+    SQLAlchemy) **không hỗ trợ** ``pool_pre_ping`` — vì vậy ta tự ping rẻ bằng
+    ``SELECT 1`` trước khi dùng: hỏng thì loại bỏ, thử lại tối đa ``attempts`` lần.
+    """
+    last_error = None
+    for _ in range(max(1, attempts)):
+        conn = pool.getconn()
+        try:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1")
+            return conn
+        except Exception as exc:  # noqa: BLE001 - cần bắt mọi kiểu lỗi kết nối
+            last_error = exc
+            logger.warning(
+                "Kết nối DB lấy từ pool không dùng được, sẽ bỏ và thử lại: %s", exc
+            )
+            try:
+                pool.putconn(conn, close=True)
+            except Exception:  # pragma: no cover - pool đang hỏng
+                pass
+    if last_error is not None:
+        raise last_error
+    raise RuntimeError("Không lấy được kết nối DB nào khỏe.")
+
+
 @contextmanager
 def get_db() -> Iterator["psycopg2.extensions.connection"]:
-    """Mượn một kết nối từ pool, tự trả lại sau khi dùng xong."""
+    """Mượn một kết nối từ pool, tự trả lại sau khi dùng xong.
+
+    Kết nối được kiểm tra còn sống trước khi dùng — xem
+    ``_borrow_live_connection`` để hiểu vì sao cần.
+    """
     pool = get_pool()
-    conn = pool.getconn()
+    conn = _borrow_live_connection(
+        pool, attempts=getattr(settings, "DB_PREPING_ATTEMPTS", 2)
+    )
     broken = False
     try:
         yield conn

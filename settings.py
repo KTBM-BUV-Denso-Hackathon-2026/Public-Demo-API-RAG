@@ -44,6 +44,10 @@ DATABASE_URL: str = _get_str("DATABASE_URL", "")
 DB_POOL_MIN: int = _get_int("DB_POOL_MIN", 1)
 DB_POOL_MAX: int = _get_int("DB_POOL_MAX", 5)
 
+# Số lần thử lại khi kết nối lấy từ pool đã bị pooler đóng bởi.
+# Xem database/config.py::_borrow_live_connection để hiểu lý do.
+DB_PREPING_ATTEMPTS: int = _get_int("DB_PREPING_ATTEMPTS", 2)
+
 # ---------------------------------------------------------------------------
 # Embedding — PHẢI khớp EMBEDDING_MODEL/EMBEDDING_DIM của llm_api
 # và cột ``vector`` của bảng rag_chunkdata.

@@ -1,96 +1,31 @@
-# Dependencies cho rag_worker (pip freeze, đã đổi sang UTF-8).
-
-aiohappyeyeballs==2.6.1
-aiohttp==3.13.5
-aiosignal==1.4.0
-amqp==5.3.1
-annotated-doc==0.0.5
-annotated-types==0.7.0
-anyio==4.12.1
-asgiref==3.11.1
-async-timeout==5.0.1
-attrs==26.1.0
-billiard==4.2.4
-celery==5.6.3
-certifi==2026.7.22
-cffi==2.0.0
-charset-normalizer==3.5.1
-click==8.1.8
-click-didyoumean==0.3.1
-click-plugins==1.1.1.2
-click-repl==0.4.0
-colorama==0.4.6
-cryptography==50.0.1
-Django==4.2.30
-django-allauth==65.10.0
-django-encrypted-model-fields==0.6.5
-django-jwt-allauth==1.2.0
-django-searchable-encrypted-fields==0.2.1
-django-smart-ratelimit==4.12.1
-django-user-agents==0.4.0
-djangorestframework==3.16.0
-djangorestframework_simplejwt==5.5.1
-dotenv==0.9.9
-drf-spectacular==0.30.0
-exceptiongroup==1.3.1
-fastapi==0.128.8
-filelock==3.19.1
-frozenlist==1.8.0
-fsspec==2025.10.0
-huggingface_hub==0.36.2
-idna==3.20
-inflection==0.5.1
-Jinja2==3.1.6
-joblib==1.5.3
-jsonschema==4.25.1
-jsonschema-specifications==2025.9.1
-kombu==5.6.2
-MarkupSafe==3.0.3
-mpmath==1.3.0
-multidict==6.7.1
-networkx==3.2.1
-numpy==2.0.2
-packaging==26.3
-pgvector==0.4.2
-pillow==11.3.0
-prompt_toolkit==3.0.52
-propcache==0.4.1
-psycopg==3.2.13
-psycopg2==2.9.12
-pycparser==2.23
-pycryptodome==3.23.0
-pydantic==2.13.5
-pydantic_core==2.46.5
-PyJWT==2.14.0
-python-dateutil==2.9.0.post0
-python-dotenv==1.2.1
-PyYAML==6.0.3
-referencing==0.36.2
-regex==2026.1.15
-requests==2.32.5
-rpds-py==0.27.1
-safetensors==0.7.0
-scikit-learn==1.6.1
-scipy==1.13.1
-sentence-transformers==5.1.2
-six==1.17.0
-sqlparse==0.5.5
-starlette==0.49.3
-sympy==1.14.0
-threadpoolctl==3.7.0
-tokenizers==0.22.2
-torch==2.8.0
-tqdm==4.70.1
-transformers==4.57.6
-typing-inspection==0.4.2
-typing_extensions==4.16.0
-tzdata==2026.4
-tzlocal==5.3.1
-ua-parser==1.0.1
-ua-parser-builtins==0.18.0.post1
-uritemplate==4.2.0
-urllib3==2.6.3
-user-agents==2.2.0
-vine==5.1.0
-wcwidth==0.8.4
-yarl==1.22.0
+# =============================================================================
+#  ĐÃ GỘP — dùng file tổng ở thư mục gốc dự án.
+# =============================================================================
+#
+#     pip install -r requirements.txt          (chạy từ thư mục gốc dự án)
+#
+#  File này GIỮ LẠI (thay vì xoá) chỉ để máy/CI cũ vẫn không báo lỗi.
+#  Nó cố ý KHÔNG liệt kê gói nào — cài từ đây sẽ không cài được gì.
+#
+#  Lý do gộp:
+#    Bản cũ là kết quả `pip freeze` trên venv bị ô nhiễm — nó liệt kê cả
+#    Django, LMDeploy, Ray và các gói mở rộng PyTorch, trong khi rag_worker
+#    (FastAPI + Celery) không dùng tới một gói nào trong số đó. Cài theo
+#    bản cũ tốn hàng GB và chậm nhiều lần so với nhu cầu thật.
+#
+#    Lỗi cụ thể trong bản cũ, đã sửa ở file tổng:
+#      1. `dotenv==0.9.9` — SAI GÓI (gói "Deprecated" trên PyPI, không phải
+#         python-dotenv); sẽ lấn át module mà dự án dùng để đọc file .env.
+#      2. Kéo theo hàng chục gói thừa: aiohttp, async-timeout, frozenlist,
+#         Django, LMDeploy, Ray, PyTorch extras...
+#
+#  Nhóm thuộc rag_worker trong file tổng:
+#    mục 6  FastAPI services — fastapi, uvicorn, pydantic, openai,
+#                                sentence-transformers
+#    mục 4  psycopg2, pgvector
+#    mục 5  celery  +  mục 10 các gói gián tiếp của nó
+#    mục 7  torch, numpy, scipy, scikit-learn, tokenizers, safetensors,
+#           pillow  (đều có extension C — bắt buộc phải có wheel)
+#
+#  Dùng chung với denso_backend và llm_api — cài một lần cho cả dự án.
+# =============================================================================
